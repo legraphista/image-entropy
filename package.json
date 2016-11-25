@@ -14,9 +14,12 @@
     "entropy": "index.js"
   },
   "repository" : {
-    "url": "https://github.com/legraphista/image-entropy",
+    "url": "https://github.com/legraphista/image-entropy"
   },
   "bugs":{
     "url": "https://github.com/legraphista/image-entropy/issues"
-  }
+  },
+  "keywords": [
+    "image", "entropy"
+  ]
 }
