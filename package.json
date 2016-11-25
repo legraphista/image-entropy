@@ -1,6 +1,6 @@
 {
   "name": "image-entropy",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Calculates the entropy of an image",
   "main": "index.js",
   "scripts": {
@@ -12,5 +12,11 @@
   },
   "bin": {
     "entropy": "index.js"
+  },
+  "repository" : {
+    "url": "https://github.com/legraphista/image-entropy",
+  },
+  "bugs":{
+    "url": "https://github.com/legraphista/image-entropy/issues"
   }
 }
