@@ -11,4 +11,3 @@ npm i -g image-entropy
 ```
 entropy <file>
 ```
-Make sure that the file extension corresponds to the file type!
