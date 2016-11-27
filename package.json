@@ -1,25 +1,28 @@
 {
   "name": "image-entropy",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "description": "Calculates the entropy of an image",
   "main": "index.js",
-  "scripts": {
-  },
+  "scripts": {},
   "author": "Stefan-Gabriel Muscalu <stefan.gabriel.muscalu@gmail.com> (http://my.corneroftheinternet.rocks/)",
   "license": "MIT",
   "dependencies": {
-    "lwip": "0.0.9"
+    "sharp": "^0.16.2"
   },
   "bin": {
     "entropy": "index.js"
   },
-  "repository" : {
+  "repository": {
     "url": "https://github.com/legraphista/image-entropy"
   },
-  "bugs":{
+  "bugs": {
     "url": "https://github.com/legraphista/image-entropy/issues"
   },
   "keywords": [
-    "image", "entropy"
-  ]
+    "image",
+    "entropy"
+  ],
+  "engines": {
+    "node": ">=4"
+  }
 }

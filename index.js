@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-const lwip = require('lwip');
+const TIMING = !!process.env.TIMING;
+const sharp = require('sharp');
 const file = process.argv[2];
 
 if (!file) {
@@ -7,59 +8,62 @@ if (!file) {
   process.exit(1);
 }
 
-lwip.open(file, (err, image) => {
-  if (err) {
-    console.error(err);
-    return process.exit(2);
-  }
+TIMING && console.time('Done!');
+TIMING && console.time('Loading file');
 
-  /**
-   * Explanation here:
-   *  http://www.astro.cornell.edu/research/projects/compression/entropy.html
-   */
-
-  const h = image.height();
-  const w = image.width();
-  // convert to grayscale
-  const greyscale = new Array(h);
-
-  for (let i = 0; i < h; i++) {
-    greyscale[i] = new Array(w);
-
-    for (let j = 0; j < w; j++) {
-      const colorPixel = image.getPixel(j, i);
-      greyscale[i][j] = (colorPixel.r + colorPixel.g + colorPixel.b) / 3;
+sharp(file)
+  .toColourspace('b-w')
+  .raw()
+  .toBuffer((err, raw, info) => {
+    if (err) {
+      console.error(err);
+      return process.exit(2);
     }
-  }
+    TIMING && console.timeEnd('Loading file');
 
-  const probLen = 256 * 2 - 1;
-  const probabilities = new Array(probLen);
-  for (let i = 0; i < probLen; i++) probabilities[i] = 0;
+    /**
+     * Explanation here:
+     *  http://www.astro.cornell.edu/research/projects/compression/entropy.html
+     */
 
-  for (let i = 0; i < h; i++) {
-    for (let j = 0; j < w - 1; j++) {
-      const diff = greyscale[i][j + 1] - greyscale[i][j];
-      if (
-        diff < (probLen + 1) / 2 &&
-        diff > -(probLen + 1) / 2
-      ) {
-        probabilities[diff + (probLen - 1) / 2]++;
+    const h = info.height;
+    const w = info.width;
+
+    TIMING && console.time('Computing probabilities');
+
+    const probLen = 256 * 2 - 1;
+    const probabilities = new Uint32Array(probLen);
+
+    for (let i = 0; i < h; i++) {
+      for (let j = 0; j < w - 1; j++) {
+        const diff = raw[i * info.width + j + 1] - raw[i * info.width + j];
+        if (
+          diff < +(probLen + 1) / 2 &&
+          diff > -(probLen + 1) / 2
+        ) {
+          probabilities[diff + (probLen - 1) / 2]++;
+        }
       }
     }
-  }
 
-  const total = probabilities.reduce((total, current) => total + current, 0);
-  let entropy = 0;
+    TIMING && console.timeEnd('Computing probabilities');
+    TIMING && console.time('Computing entropy');
 
-  for (let i = 0; i < probLen; i++) {
-    probabilities[i] = probabilities[i] / total;
+    const total = probabilities.reduce((total, current) => total + current, 0);
+    let entropy = 0;
 
-    if (probabilities[i] !== 0) {
-      entropy = entropy - probabilities[i] * Math.log(probabilities[i])
+    for (let i = 0; i < probLen; i++) {
+      const prob = probabilities[i] / total;
+
+      if (prob !== 0) {
+        entropy = entropy - prob * Math.log(prob)
+      }
     }
-  }
 
-  entropy = entropy / Math.log(2);
+    entropy = entropy / Math.log(2);
 
-  console.log(entropy);
-});
+    TIMING && console.timeEnd('Computing entropy');
+    TIMING && console.timeEnd('Done!');
+
+    console.log(entropy);
+  });
