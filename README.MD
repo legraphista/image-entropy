@@ -9,5 +9,10 @@ npm i -g image-entropy
 
 ## Usage
 ```
-entropy <file>
+entropy [<file>]
+
+Examples:
+
+entropy test.png
+cat test.png | entropy
 ```
